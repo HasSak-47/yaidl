@@ -1,10 +1,12 @@
-# Generator
+# YAIDL
 
-Generator is a Rust workspace that compiles a compact HTTP DSL describing structs, unions, and endpoints into ready-to-wire code. The workspace hosts the `generator` CLI crate (`crates/cli`) and the reusable `genlib` library crate (`crates/lib`), so you can drive code generation via `cargo run -p generator` or embed the parser/generators directly.
+Yet Another Interface Description Language, used to generate TS and FastAPI bindings
+
+YAIDL is a Rust workspace that compiles a compact HTTP DSL describing structs, unions, and endpoints into ready-to-wire code. The workspace hosts the `yaidl` CLI crate (`crates/cli`) and the reusable `genlib` library crate (`crates/lib`), so you can drive code generation via `cargo run -p yaidl` or embed the parser/generators directly.
 
 ## Highlights
 
-- **Single source of truth** – Model your API once in `*.gdsl` files; the Pest grammar lives in `crates/lib/pest/lang.pest` and the walkthrough in `lang.md`.
+- **Single source of truth** – Model your API once in `*.yaidl` files; the Pest grammar lives in `crates/lib/pest/lang.pest` and the walkthrough in `lang.md`.
 - **Extensible generators** – Every backend implements `genlib::generators::Generator`, making it straightforward to add more targets (including via the `ffi` shim).
 - **Configurable TypeScript output** – Switch error-handling (`raise`, `result`, or tuple `pair`) and literal-union handling (`to_type`, `to_enum`, or `to_algebraic`) straight from the CLI.
 - **FastAPI starter** – Provide an app/module name and get FastAPI route stubs plus pydantic models (translation helpers are tracked in `todo.md`).
@@ -30,14 +32,14 @@ See `lang.md` for a longer walkthrough and `crates/lib/pest/lang.pest` for the a
 
 ## Running the CLI
 
-Provide one or more `.defs` files followed by a generator subcommand:
+Provide one or more `.yaidl` files followed by a generator subcommand:
 
 ```bash
-cargo run -p generator -- ./api.defs typescript [TS OPTIONS]
-cargo run -p generator -- ./defs/users.defs ./defs/orders.defs python-fast-api <app_name> [FASTAPI OPTIONS]
+cargo run -p yaidl -- ./api.yaidl typescript [TS OPTIONS]
+cargo run -p yaidl -- ./defs/users.yaidl ./defs/orders.yaidl python-fast-api <app_name> [FASTAPI OPTIONS]
 ```
 
-All definition files are loaded before generation, so shared DSL modules stay visible across inputs. Run `cargo run -p generator -- --help` for the full flag list.
+All definition files are loaded before generation, so shared DSL modules stay visible across inputs. Run `cargo run -p yaidl -- --help` for the full flag list.
 
 ### Common flags
 
@@ -62,7 +64,7 @@ All definition files are loaded before generation, so shared DSL modules stay vi
 
 ## Output Layout
 
-- **Decoupled (default):** Each `.defs` file produces its own `{prefix}{module}{postfix}.{ext}` bundle. Add `-S/--split` to emit `types_{module}` and `endpoints_{module}` companions instead.
+- **Decoupled (default):** Each `.yaidl` file produces its own `{prefix}{module}{postfix}.{ext}` bundle. Add `-S/--split` to emit `types_{module}` and `endpoints_{module}` companions instead.
 - **United:** Supplying `-u/--united <name>` merges all parsed modules into a single output. With split enabled this becomes `types_<name>` / `endpoint_<name>`; otherwise it is `{prefix}<name>{postfix}.{ext}`.
 - **Stdout mode:** Pass `--io` to print generated files rather than writing to disk (handy for quick diffs).
 
@@ -74,7 +76,7 @@ The CLI only overwrites files when `--destructive` is set. Combine `--prefix`, `
 - `crates/lib/src/parser/` – DSL AST, loader, and definition normalisation (`definitions.rs`, `types.rs`, `endpoint.rs`).
 - `crates/lib/src/builder/` – Reusable code indentation/formatting helpers.
 - `crates/lib/src/generators/` – TypeScript and FastAPI backends plus shared traits (`ts.rs`, `python.rs`, `ffi.rs`).
-- `crates/lib/tests/` – Parser + generator regression tests with DSL fixtures (`unit.gdsl`).
+- `crates/lib/tests/` – Parser + generator regression tests with DSL fixtures (`unit.yaidl`).
 - `crates/lib/pest/lang.pest` – Grammar that powers the DSL parser.
 - `lang.md` – DSL walkthrough and example output.
 - `AGENTS.md` – Contributor guide covering coding style, commands, and review expectations.
@@ -87,10 +89,10 @@ This repo is a Cargo workspace with `crates/lib` providing the parser/generator 
 cargo fmt --all
 cargo clippy --all-targets --all-features -D warnings
 cargo test --workspace
-cargo run -p generator -- ./examples/api.defs typescript --path temp/
+cargo run -p yaidl -- ./examples/api.yaidl typescript --path temp/
 ```
 
-Point generator output at `temp/` or another disposable directory so local source files are not overwritten. When iterating on the grammar, focus runs with `cargo test -p lib parse_test`.
+Point YAIDL output at `temp/` or another disposable directory so local source files are not overwritten. When iterating on the grammar, focus runs with `cargo test -p lib parse_test`.
 
 ## Contributing
 

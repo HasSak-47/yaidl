@@ -44,4 +44,4 @@ _qol_:
 ## Testing
 
 - convert parser tests in `crates/lib/tests` to table-driven suites so new cases are easier to add
-- add end-to-end tests that run `cargo run -p cli` against sample `.defs` files and snapshot the generated artifacts
+- add end-to-end tests that run `cargo run -p yaidl` against sample `.yaidl` files and snapshot the generated artifacts

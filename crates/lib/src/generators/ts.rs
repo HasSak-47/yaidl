@@ -565,10 +565,14 @@ impl Generator for TS {
                     }
                 }
                 if endpoint.return_type.contains_into(defs) {
-                    func_body.add_line(format!("return into_domain_{name}(j);"));
+                    func_body.add_line(format!("const payload = into_domain_{name}(j);"));
                 } else {
-                    func_body.add_line(format!("return j as {name};"));
+                    func_body.add_line(format!("const payload = j as {name};"));
                 }
+                func_body.add_line(self.emit_success_branch(
+                    &"payload".to_string(),
+                    &return_type,
+                ));
             }
             Type::Null => {
                 func_body.add_line("return".to_string());
@@ -583,7 +587,11 @@ impl Generator for TS {
                     &format!("new Error('response was not a {return_type_literal}')"),
                     &return_type,
                 ));
-                func_body.add_line("return j;".to_string());
+                func_body.add_line("const payload = j;".to_string());
+                func_body.add_line(self.emit_success_branch(
+                    &"payload".to_string(),
+                    &return_type,
+                ));
             }
             Type::Array(arr) => {
                 let if_array = func_body.create_child_segment();
@@ -593,19 +601,30 @@ impl Generator for TS {
                     &return_type,
                 ));
 
-                if arr.ty.contains_into(defs) {
-                    func_body.add_line(format!(
-                        "return j.map(m => {});",
-                        self.build_into_domain_expression("m".to_string(), &arr.ty, defs),
-                    ));
+                let payload_expr = if arr.ty.contains_into(defs) {
+                    format!(
+                        "j.map(m => {})",
+                        self.build_into_domain_expression("m".to_string(), &arr.ty, defs)
+                    )
                 } else {
-                    func_body.add_line(format!(
-                        "return j as {}",
-                        self.ts_type_literal(defs, &endpoint.return_type)
-                    ));
-                }
+                    format!("j as {}", self.ts_type_literal(defs, &endpoint.return_type))
+                };
+                func_body.add_line(format!("const payload = {};", payload_expr));
+                func_body.add_line(self.emit_success_branch(
+                    &"payload".to_string(),
+                    &return_type,
+                ));
             }
-            ty => func_body.add_line(format!("return j as {}", self.ts_type_literal(defs, ty))),
+            ty => {
+                func_body.add_line(format!(
+                    "const payload = j as {}",
+                    self.ts_type_literal(defs, ty)
+                ));
+                func_body.add_line(self.emit_success_branch(
+                    &"payload".to_string(),
+                    &return_type,
+                ));
+            }
         }
 
         code.add_line("}".to_string());

@@ -99,7 +99,6 @@ impl GeneratorFFI {
     }
 
     #[allow(dead_code)]
-<<<<<<< HEAD
     extern "C" fn set_wire_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
         self.wire_translation = Some(t);
         self
@@ -108,11 +107,6 @@ impl GeneratorFFI {
     #[allow(dead_code)]
     extern "C" fn set_domain_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
         self.domain_translation = Some(t);
-=======
-    #[unsafe(no_mangle)]
-    extern "C" fn set_type_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
-        self.ty_translation = Some(t);
->>>>>>> 00ad704 (idk)
         self
     }
 

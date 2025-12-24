@@ -2,14 +2,14 @@
 
 ## Project Structure & Module Organization
 
-This workspace has two crates: `crates/lib` hosts the parser, builder, and generators, while `crates/cli` wires those modules into the binary. The lib crate keeps the Pest grammar under `pest/lang.pest`, parser helpers in `src/parser/`, generators in `src/generators/`, and indentation helpers in `src/builder/`. DSL examples and fixtures live under `crates/lib/tests` alongside `lang.md` and `todo.md`; add new samples there for discoverability.
+The YAIDL workspace has two crates: `crates/lib` hosts the parser, builder, and generators, while `crates/cli` wires those modules into the binary. The lib crate keeps the Pest grammar under `pest/lang.pest`, parser helpers in `src/parser/`, generators in `src/generators/`, and indentation helpers in `src/builder/`. DSL examples and fixtures live under `crates/lib/tests` alongside `lang.md` and `todo.md`; add new samples there for discoverability.
 
 ## Build, Test, and Development Commands
 
 - `cargo fmt --all` – Runs `rustfmt` across every crate; required before opening a PR.
 - `cargo clippy --all-targets --all-features -D warnings` – Lints both crates at the same strictness we expect in CI.
 - `cargo test --workspace` – Executes parser unit tests and CLI smoke tests; use `-p lib` when iterating on grammar work.
-- `cargo run --bin cli -- <defs> typescript|python-fast-api …` – Manually exercise generators; point `--path` to `temp/` when inspecting output files.
+- `cargo run -p yaidl -- <defs> typescript|python-fast-api …` – Manually exercise generators; point `--path` to `temp/` when inspecting output files.
 
 ## Coding Style & Naming Conventions
 
@@ -17,7 +17,7 @@ Rust defaults apply: four-space indentation, `snake_case` for modules/functions,
 
 ## Testing Guidelines
 
-Unit tests belong in `crates/lib/tests` or alongside modules under `src/*/`. Mirror the existing `parse_*` naming for parser tests and keep DSL fixtures as `.gdsl` files referenced via `include_str!`. When altering generators, add smoke tests that assert on emitted strings or run `cargo run` against a throwaway `.defs` file and commit representative output. Target new parser branches with tests so the grammar stays stable.
+Unit tests belong in `crates/lib/tests` or alongside modules under `src/*/`. Mirror the existing `parse_*` naming for parser tests and keep DSL fixtures as `.yaidl` files referenced via `include_str!`. When altering generators, add smoke tests that assert on emitted strings or run `cargo run` against a throwaway `.yaidl` file and commit representative output. Target new parser branches with tests so the grammar stays stable.
 
 ## Commit & Pull Request Guidelines
 

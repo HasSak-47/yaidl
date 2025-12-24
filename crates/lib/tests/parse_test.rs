@@ -7,8 +7,8 @@ use std::{env::current_dir, fs::File, io::Write, path::PathBuf};
 #[test]
 fn parse_test() -> Result<()> {
     let mut defs = Definitons::new();
-    let path = PathBuf::from("./tests/unit.gdsl");
-    defs.load_from_file(path)?;
+    let path = PathBuf::from("tests/unit.yaidl");
+    defs.load_from_file(&path)?;
     defs.build_definitons();
     let generator = ts::TS::default();
 

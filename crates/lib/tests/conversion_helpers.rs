@@ -5,7 +5,7 @@ use std::path::PathBuf;
 #[test]
 fn generates_conversion_helpers_for_nested_named_types() -> Result<()> {
     // let mut defs = Definitons::new();
-    // defs.load_from_file(PathBuf::from("./tests/unit.gdsl"))?;
+    // defs.load_from_file(PathBuf::from("./tests/unit.yaidl"))?;
     // defs.build_definitons();
     // let generator = ts::TS::default();
 

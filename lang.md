@@ -1,6 +1,6 @@
 # DSL Reference
 
-This document sketches the language supported by the generator and shows the shape of the emitted code for the bundled targets.
+This document sketches the language supported by YAIDL and shows the shape of the emitted code for the bundled targets.
 
 ## Example API Description
 
@@ -52,7 +52,7 @@ get_summary(status: Status?) @get "/sales/summary" -> SaleSummary
 
 - Primitive fields map directly to language primitives (`int`, `string`, `float`, `bool`).
 - Tagged and untagged unions use the `{ ... | ... }` syntax (string literals shown above).
-- `Foo as datetime` relies on the representation helpers in the generator (`Date` in TS, `datetime` in Python).
+- `Foo as datetime` relies on the representation helpers in YAIDL's generators (`Date` in TS, `datetime` in Python).
 - `Type?` results in optionals (`T | null` or `Optional[T]`).
 - Arrays use `Type[]`.
 - Endpoints declare positional parameters; bindings are inferred from path segments vs body payloads.
@@ -61,11 +61,11 @@ get_summary(status: Status?) @get "/sales/summary" -> SaleSummary
 ### Binding rules
 
 1. **Path parameters** – Any `{foo}` segment in the path binds to the parameter of the same name.
-2. **Body payloads** – Struct parameters not used in the path become the request body and are serialized using the generator-specific builders.
+2. **Body payloads** – Struct parameters not used in the path become the request body and are serialized using YAIDL's generator-specific builders.
 3. **Query parameters** – Remaining scalar fields become query strings. Optional fields (`Type?`) translate to nullable query args.
 4. **Return values** – The `-> Type` arrow drives both the client response type and FastAPI `response_model`.
 
-Keep DSL definitions small and composable. For larger APIs, split `*.defs` files by domain (e.g., `orders.defs`, `inventory.defs`) and load each with separate CLI invocations or concatenate them before generation.
+Keep DSL definitions small and composable. For larger APIs, split `*.yaidl` files by domain (e.g., `orders.yaidl`, `inventory.yaidl`) and load each with separate CLI invocations or concatenate them before generation.
 
 ## Generated Code Sketches
 

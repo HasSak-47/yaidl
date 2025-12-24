@@ -13,7 +13,7 @@ use clap::{self, Parser, Subcommand, arg};
 /// CLI surface exposed by `cargo run -- ...`.
 #[derive(Parser)]
 struct Cli {
-    /// One or more `.defs` files to load (in order).
+    /// One or more `.yaidl` files to load (in order).
     pub definitions: Vec<PathBuf>,
 
     /// Overwrite files in `--path` even if they already exist.
