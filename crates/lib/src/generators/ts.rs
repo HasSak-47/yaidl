@@ -569,10 +569,7 @@ impl Generator for TS {
                 } else {
                     func_body.add_line(format!("const payload = j as {name};"));
                 }
-                func_body.add_line(self.emit_success_branch(
-                    &"payload".to_string(),
-                    &return_type,
-                ));
+                func_body.add_line(self.emit_success_branch(&"payload".to_string(), &return_type));
             }
             Type::Null => {
                 func_body.add_line("return".to_string());
@@ -588,10 +585,7 @@ impl Generator for TS {
                     &return_type,
                 ));
                 func_body.add_line("const payload = j;".to_string());
-                func_body.add_line(self.emit_success_branch(
-                    &"payload".to_string(),
-                    &return_type,
-                ));
+                func_body.add_line(self.emit_success_branch(&"payload".to_string(), &return_type));
             }
             Type::Array(arr) => {
                 let if_array = func_body.create_child_segment();
@@ -610,20 +604,14 @@ impl Generator for TS {
                     format!("j as {}", self.ts_type_literal(defs, &endpoint.return_type))
                 };
                 func_body.add_line(format!("const payload = {};", payload_expr));
-                func_body.add_line(self.emit_success_branch(
-                    &"payload".to_string(),
-                    &return_type,
-                ));
+                func_body.add_line(self.emit_success_branch(&"payload".to_string(), &return_type));
             }
             ty => {
                 func_body.add_line(format!(
                     "const payload = j as {}",
                     self.ts_type_literal(defs, ty)
                 ));
-                func_body.add_line(self.emit_success_branch(
-                    &"payload".to_string(),
-                    &return_type,
-                ));
+                func_body.add_line(self.emit_success_branch(&"payload".to_string(), &return_type));
             }
         }
 
