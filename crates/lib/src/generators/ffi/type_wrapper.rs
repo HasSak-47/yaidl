@@ -31,7 +31,7 @@ pub struct UndeterminedWrapper(pub *const String);
 /// Exposes `Type` to foreign code without leaking Rust's layout.
 #[repr(C)]
 pub struct TypeWrapper {
-    pub defs: *const TypeDef,
+    pub defs: *const crate::parser::types::Type,
 }
 
 #[repr(C)]

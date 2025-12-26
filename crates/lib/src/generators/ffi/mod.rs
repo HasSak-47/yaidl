@@ -48,35 +48,39 @@ pub(crate) fn string_view_opt(value: Option<&str>) -> YaildStringView {
 }
 
 /// Signature for callbacks that emit type headers (imports, etc).
-pub type TypeHeader = extern "C" fn(*const c_void, DefinitionsWrapper) -> CodeFFI;
+pub type TypeHeaderSign = Option<extern "C" fn(*const c_void, DefinitionsWrapper) -> CodeFFI>;
 /// Signature for callbacks that emit endpoint headers.
-pub type EndpointHeader = extern "C" fn(*const c_void, DefinitionsWrapper) -> CodeFFI;
-pub type Type =
-    extern "C" fn(*const c_void, *const c_char, TypeWrapper, c_char, DefinitionsWrapper) -> CodeFFI;
+pub type EndpointHeaderSign = Option<extern "C" fn(*const c_void, DefinitionsWrapper) -> CodeFFI>;
+/// Signature for callbacks that emit type definitions.
+pub type TypeSign = Option<
+    extern "C" fn(*const c_void, *const c_char, TypeWrapper, c_char, DefinitionsWrapper) -> CodeFFI,
+>;
 /// Signature for callbacks that emit domain <-> wire translation helpers.
-pub type TypeTranslation =
-    extern "C" fn(*const c_void, c_char, TypeInfoWrapper, DefinitionsWrapper) -> CodeFFI;
+pub type TypeTranslationSign =
+    Option<extern "C" fn(*const c_void, c_char, TypeInfoWrapper, DefinitionsWrapper) -> CodeFFI>;
 /// Signature for callbacks that emit endpoint functions.
-pub type Endpoint =
-    extern "C" fn(*const c_void, *const c_char, EndpointWrapper, DefinitionsWrapper) -> CodeFFI;
+pub type EndpointSign = Option<
+    extern "C" fn(*const c_void, *const c_char, EndpointWrapper, DefinitionsWrapper) -> CodeFFI,
+>;
 
 /// Trait object adapter that lets native generators be exposed via FFI.
 #[repr(C)]
 #[allow(dead_code)]
 pub struct GeneratorFFI {
+    /// Opaque foreign context pointer forwarded to every callback.
     this: *const c_void,
-    header_type: Option<TypeHeader>,
-    header_endpoint: Option<EndpointHeader>,
-    ty: Option<Type>,
-    wire_translation: Option<TypeTranslation>,
-    domain_translation: Option<TypeTranslation>,
-    endpoint: Option<Endpoint>,
+    header_type: TypeHeaderSign,
+    header_endpoint: EndpointHeaderSign,
+    ty: TypeSign,
+    wire_translation: TypeTranslationSign,
+    domain_translation: TypeTranslationSign,
+    endpoint: EndpointSign,
 }
 
 impl GeneratorFFI {
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn new() -> GeneratorFFI {
+    pub extern "C" fn yaidl_generator_new() -> GeneratorFFI {
         return GeneratorFFI {
             this: null(),
             header_type: None,
@@ -90,49 +94,58 @@ impl GeneratorFFI {
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_header_type(mut self, t: TypeHeader) -> GeneratorFFI {
-        self.header_type = Some(t);
+    pub extern "C" fn yaidl_generator_set_header_type(mut self, t: TypeHeaderSign) -> GeneratorFFI {
+        self.header_type = t;
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_header_endpoint(mut self, t: EndpointHeader) -> GeneratorFFI {
-        self.header_endpoint = Some(t);
+    pub extern "C" fn yaidl_generator_set_header_endpoint(
+        mut self,
+        t: EndpointHeaderSign,
+    ) -> GeneratorFFI {
+        self.header_endpoint = t;
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_type(mut self, t: Type) -> GeneratorFFI {
-        self.ty = Some(t);
+    pub extern "C" fn yaidl_generator_set_type(mut self, t: TypeSign) -> GeneratorFFI {
+        self.ty = t;
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_wire_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
-        self.wire_translation = Some(t);
+    pub extern "C" fn yaidl_generator_set_wire_translation(
+        mut self,
+        t: TypeTranslationSign,
+    ) -> GeneratorFFI {
+        self.wire_translation = t;
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_domain_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
-        self.domain_translation = Some(t);
+    pub extern "C" fn yaidl_generator_set_domain_translation(
+        mut self,
+        t: TypeTranslationSign,
+    ) -> GeneratorFFI {
+        self.domain_translation = t;
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_endpoint(mut self, t: Endpoint) -> GeneratorFFI {
-        self.endpoint = Some(t);
+    pub extern "C" fn yaidl_generator_set_endpoint(mut self, t: EndpointSign) -> GeneratorFFI {
+        self.endpoint = t;
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    pub extern "C" fn set_this(mut self, t: *const c_void) -> GeneratorFFI {
+    pub extern "C" fn yaidl_generator_set_this(mut self, t: *const c_void) -> GeneratorFFI {
         self.this = t;
         self
     }
@@ -157,7 +170,7 @@ impl Generator for GeneratorFFI {
         );
 
         match codeffi {
-            CodeFFI::Code(code) => *code,
+            CodeFFI::CodeBox(code) => *code,
             _ => unreachable!(),
         }
     }
@@ -178,7 +191,7 @@ impl Generator for GeneratorFFI {
         let codeffi = self.wire_translation.unwrap()(self.this, public as c_char, model, defs);
 
         match codeffi {
-            CodeFFI::Code(code) => *code,
+            CodeFFI::CodeBox(code) => *code,
             _ => unreachable!(),
         }
     }
@@ -200,7 +213,7 @@ impl Generator for GeneratorFFI {
         let codeffi = self.domain_translation.unwrap()(self.this, public as c_char, model, defs);
 
         match codeffi {
-            CodeFFI::Code(code) => *code,
+            CodeFFI::CodeBox(code) => *code,
             _ => unreachable!(),
         }
     }
@@ -218,7 +231,7 @@ impl Generator for GeneratorFFI {
             self.endpoint.unwrap()(self.this, name.as_ptr() as *const c_char, model, defs);
 
         match codeffi {
-            CodeFFI::Code(code) => *code,
+            CodeFFI::CodeBox(code) => *code,
             _ => unreachable!(),
         }
     }
@@ -232,7 +245,7 @@ impl Generator for GeneratorFFI {
         let codeffi = self.header_type.unwrap()(self.this, defs);
 
         match codeffi {
-            CodeFFI::Code(code) => *code,
+            CodeFFI::CodeBox(code) => *code,
             _ => unreachable!(),
         }
     }
@@ -246,7 +259,7 @@ impl Generator for GeneratorFFI {
         let codeffi = self.header_endpoint.unwrap()(self.this, defs);
 
         match codeffi {
-            CodeFFI::Code(code) => *code,
+            CodeFFI::CodeBox(code) => *code,
             _ => unreachable!(),
         }
     }

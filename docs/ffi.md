@@ -47,6 +47,7 @@ Parameters are:
 - `c_char`: `public` flag (`0` = false, non-zero = true)
 - `DefinitionsWrapper`/`TypeWrapper`/`TypeInfoWrapper`/`EndpointWrapper`
 - Return value: `CodeFFI`
+- Callback fields are nullable; pass `NULL` to disable a callback.
 
 ### Generator adapter
 
