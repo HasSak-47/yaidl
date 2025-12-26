@@ -17,11 +17,7 @@ use crate::{
     },
 };
 
-/// Exposes `Type` to foreign code without leaking Rust's layout.
-#[repr(C)]
-pub struct TypeWrapper {
-    pub defs: *const TypeDef,
-}
+use type_wrapper::TypeWrapper;
 
 /// Wrapper around `TypeInformation` for FFI boundaries.
 #[repr(C)]
