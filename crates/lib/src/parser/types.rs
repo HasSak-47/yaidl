@@ -8,7 +8,7 @@ use crate::parser::definitions::Definitons;
 /// Primitive scalars available in the DSL.
 #[derive(PartialEq, Clone)]
 pub enum PrimitiveType {
-    Bool,                    // int_x
+    Bool,                    // bool
     Integer(Option<usize>),  // int_x
     Unsigned(Option<usize>), // uint_x
     Float(Option<usize>),    // float_x

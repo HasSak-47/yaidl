@@ -3,6 +3,13 @@ mod endpoint_wrapper;
 mod type_wrapper;
 mod typeinfo_wrapper;
 
+pub use definitions_wrapper::DefinitionsWrapper;
+pub use endpoint_wrapper::{
+    EndpointParamWrapper, EndpointWrapper, YaildEndpointMethod, YaildEndpointParamKind,
+};
+pub use type_wrapper::TypeWrapper;
+pub use typeinfo_wrapper::TypeInfoWrapper;
+
 use std::{
     ffi::{c_char, c_void},
     ptr::null,
@@ -17,24 +24,27 @@ use crate::{
     },
 };
 
-use type_wrapper::TypeWrapper;
-
-/// Wrapper around `TypeInformation` for FFI boundaries.
 #[repr(C)]
-pub struct TypeInfoWrapper {
-    pub defs: *const TypeInformation,
+pub struct YaildStringView {
+    pub ptr: *const c_char,
+    pub len: usize,
 }
 
-/// Wrapper around `EndPoint` for FFI boundaries.
-#[repr(C)]
-pub struct EndpointWrapper {
-    pub defs: *const EndpointDef,
+pub(crate) fn string_view(value: &str) -> YaildStringView {
+    YaildStringView {
+        ptr: value.as_ptr() as *const c_char,
+        len: value.len(),
+    }
 }
 
-/// Wrapper around the full `Definitons` map for FFI consumers.
-#[repr(C)]
-pub struct DefinitionsWrapper {
-    pub defs: *const Definitons,
+pub(crate) fn string_view_opt(value: Option<&str>) -> YaildStringView {
+    match value {
+        Some(value) => string_view(value),
+        None => YaildStringView {
+            ptr: std::ptr::null(),
+            len: 0,
+        },
+    }
 }
 
 /// Signature for callbacks that emit type headers (imports, etc).
@@ -53,7 +63,7 @@ pub type Endpoint =
 /// Trait object adapter that lets native generators be exposed via FFI.
 #[repr(C)]
 #[allow(dead_code)]
-struct GeneratorFFI {
+pub struct GeneratorFFI {
     this: *const c_void,
     header_type: Option<TypeHeader>,
     header_endpoint: Option<EndpointHeader>,
@@ -66,7 +76,7 @@ struct GeneratorFFI {
 impl GeneratorFFI {
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    extern "C" fn new() -> GeneratorFFI {
+    pub extern "C" fn new() -> GeneratorFFI {
         return GeneratorFFI {
             this: null(),
             header_type: None,
@@ -80,47 +90,49 @@ impl GeneratorFFI {
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    extern "C" fn set_header_type(mut self, t: TypeHeader) -> GeneratorFFI {
+    pub extern "C" fn set_header_type(mut self, t: TypeHeader) -> GeneratorFFI {
         self.header_type = Some(t);
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    extern "C" fn set_header_endpoint(mut self, t: EndpointHeader) -> GeneratorFFI {
+    pub extern "C" fn set_header_endpoint(mut self, t: EndpointHeader) -> GeneratorFFI {
         self.header_endpoint = Some(t);
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    extern "C" fn set_type(mut self, t: Type) -> GeneratorFFI {
+    pub extern "C" fn set_type(mut self, t: Type) -> GeneratorFFI {
         self.ty = Some(t);
         self
     }
 
     #[allow(dead_code)]
-    extern "C" fn set_wire_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
+    #[unsafe(no_mangle)]
+    pub extern "C" fn set_wire_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
         self.wire_translation = Some(t);
         self
     }
 
     #[allow(dead_code)]
-    extern "C" fn set_domain_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
+    #[unsafe(no_mangle)]
+    pub extern "C" fn set_domain_translation(mut self, t: TypeTranslation) -> GeneratorFFI {
         self.domain_translation = Some(t);
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    extern "C" fn set_endpoint(mut self, t: Endpoint) -> GeneratorFFI {
+    pub extern "C" fn set_endpoint(mut self, t: Endpoint) -> GeneratorFFI {
         self.endpoint = Some(t);
         self
     }
 
     #[allow(dead_code)]
     #[unsafe(no_mangle)]
-    extern "C" fn set_this(mut self, t: *const c_void) -> GeneratorFFI {
+    pub extern "C" fn set_this(mut self, t: *const c_void) -> GeneratorFFI {
         self.this = t;
         self
     }

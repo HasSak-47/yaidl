@@ -28,6 +28,7 @@ borrowed views that are only valid for the duration of the callback.
 - `TypeInfoWrapper` -> `*const TypeInformation`
 - `EndpointWrapper` -> `*const EndPoint`
 - `DefinitionsWrapper` -> `*const Definitons`
+- `YaildStringView` -> `{ ptr, len }` view into UTF-8 data (not null-terminated)
 
 ### Generator callback signatures
 
@@ -84,6 +85,8 @@ parent is returned.
 - `public` is a `c_char`; treat any non-zero value as `true`.
 - `CodeFFI` values returned to Rust are owned by Rust; do not free them on the
   foreign side.
+- `YaildStringView` points at UTF-8 bytes with an explicit length; the data is
+  not null-terminated.
 
 ## Minimal flow sketch (pseudocode)
 

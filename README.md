@@ -80,7 +80,7 @@ The CLI only overwrites files when `--destructive` is set. Combine `--prefix`, `
 - `crates/lib/pest/lang.pest` – Grammar that powers the DSL parser.
 - `docs/lang.md` – DSL walkthrough and example output.
 - `docs/ffi.md` – FFI shim overview, callbacks, and safety notes.
-- `docs/AGENTS.md` – Contributor guide covering coding style, commands, and review expectations.
+- `AGENTS.md` – AI Agent Contributor guide covering coding style, commands, and review expectations.
 
 ## Developing Locally
 
@@ -97,4 +97,4 @@ Point YAIDL output at `temp/` or another disposable directory so local source fi
 
 ## Contributing
 
-Read `docs/AGENTS.md` for the contributor checklist (project layout, coding style, testing, and PR requirements). Summarise behaviour changes in PR descriptions, include any regenerated artifacts, and link the relevant entries from `todo.md` when closing outstanding work.
+Read `AGENTS.md` for the contributor checklist (project layout, coding style, testing, and PR requirements). Summarise behaviour changes in PR descriptions, include any regenerated artifacts, and link the relevant entries from `todo.md` when closing outstanding work.

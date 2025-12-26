@@ -734,6 +734,16 @@ impl Definitons {
             .find(|n| name == *n.0)
             .and_then(|t| Some(t.1));
     }
+
+    pub fn get_endpoint<S: AsRef<str>>(&self, name: S) -> Option<&EndPointInformation> {
+        let name = name.as_ref();
+        return self.end_points.get(name);
+    }
+
+    pub fn has_endpoint<S: AsRef<str>>(&self, name: S) -> bool {
+        let name = name.as_ref();
+        self.end_points.contains_key(name)
+    }
 }
 
 pub trait Generator {
