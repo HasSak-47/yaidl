@@ -45,7 +45,10 @@ pub enum YaildUnionKind {
 pub struct UnionMemberWrapper(pub *const UnionMember);
 
 #[repr(C)]
-pub struct StructMemberWrapper(pub *const (String, TypeDef));
+pub struct StructMemberWrapper {
+    pub name: *const String,
+    pub ty: *const TypeDef,
+}
 
 macro_rules! type_create_is_and_get {
     ($a: tt(_), $ret: tt, $is: ident, $get: ident) => {
@@ -86,62 +89,62 @@ type_create_is_and_get!(
     Literal(_),
     LiteralWrapper,
     yaild_type_is_literal,
-    yailde_type_get_literal
+    yaild_type_get_literal
 );
 type_create_is_and_get!(
     Primitive(_),
     PrimitiveWrapper,
     yaild_type_is_primitive,
-    yailde_type_get_primitive
+    yaild_type_get_primitive
 );
 type_create_is_and_get!(
     Repr(_),
     ReprWrapper,
     yaild_type_is_repr,
-    yailde_type_get_repr
+    yaild_type_get_repr
 );
 type_create_is_and_get!(
     Optional(_),
     OptionalWrapper,
     yaild_type_is_optional,
-    yailde_type_get_optional
+    yaild_type_get_optional
 );
 type_create_is_and_get!(
     Array(_),
     ArrayWrapper,
     yaild_type_is_array,
-    yailde_type_get_array
+    yaild_type_get_array
 );
 type_create_is_and_get!(
     Union(_),
     UnionWrapper,
     yaild_type_is_union,
-    yailde_type_get_union
+    yaild_type_get_union
 );
 type_create_is_and_get!(
     Struct(_),
     StructWrapper,
     yaild_type_is_struct,
-    yailde_type_get_struct
+    yaild_type_get_struct
 );
 type_create_is_and_get!(
     Into(_),
     IntoWrapper,
     yaild_type_is_into,
-    yailde_type_get_into
+    yaild_type_get_into
 );
-type_create_is_and_get!(Map(_), MapWrapper, yaild_type_is_map, yailde_type_get_map);
+type_create_is_and_get!(Map(_), MapWrapper, yaild_type_is_map, yaild_type_get_map);
 type_create_is_and_get!(
     Named(_),
     NamedWrapper,
     yaild_type_is_named,
-    yailde_type_get_named
+    yaild_type_get_named
 );
 type_create_is_and_get!(
     Undetermined(_),
     UndeterminedWrapper,
     yaild_type_is_undetermined,
-    yailde_type_get_undetermined
+    yaild_type_get_undetermined
 );
 
 macro_rules! literal_create_is_and_get {
@@ -285,7 +288,7 @@ extern "C" fn yaild_repr_is_datetime(wrapper: *const ReprWrapper) -> bool {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_optional_get_type(wrapper: *const OptionalWrapper) -> TypeWrapper {
+extern "C" fn yaild_optional_get_type(wrapper: *const OptionalWrapper) -> TypeWrapper {
     unsafe {
         TypeWrapper {
             defs: (*(*wrapper).0).ty.as_ref() as *const TypeDef,
@@ -299,7 +302,7 @@ extern "C" fn yaild_array_has_len(wrapper: *const ArrayWrapper) -> bool {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_array_get_len(wrapper: *const ArrayWrapper) -> usize {
+extern "C" fn yaild_array_get_len(wrapper: *const ArrayWrapper) -> usize {
     unsafe {
         match (*(*wrapper).0).len {
             Some(len) => len,
@@ -309,7 +312,7 @@ extern "C" fn yailde_array_get_len(wrapper: *const ArrayWrapper) -> usize {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_array_get_type(wrapper: *const ArrayWrapper) -> TypeWrapper {
+extern "C" fn yaild_array_get_type(wrapper: *const ArrayWrapper) -> TypeWrapper {
     unsafe {
         TypeWrapper {
             defs: (*(*wrapper).0).ty.as_ref() as *const TypeDef,
@@ -318,7 +321,7 @@ extern "C" fn yailde_array_get_type(wrapper: *const ArrayWrapper) -> TypeWrapper
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_union_get_kind(wrapper: *const UnionWrapper) -> YaildUnionKind {
+extern "C" fn yaild_union_get_kind(wrapper: *const UnionWrapper) -> YaildUnionKind {
     unsafe {
         match &(*(*wrapper).0).kind {
             crate::parser::types::UnionKind::Untagged => YaildUnionKind::Untagged,
@@ -329,12 +332,12 @@ extern "C" fn yailde_union_get_kind(wrapper: *const UnionWrapper) -> YaildUnionK
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_union_get_member_len(wrapper: *const UnionWrapper) -> usize {
+extern "C" fn yaild_union_get_member_len(wrapper: *const UnionWrapper) -> usize {
     unsafe { (*(*wrapper).0).members.len() }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_union_get_member(
+extern "C" fn yaild_union_get_member(
     wrapper: *const UnionWrapper,
     index: usize,
 ) -> UnionMemberWrapper {
@@ -358,7 +361,7 @@ extern "C" fn yaild_union_member_has_tag(wrapper: *const UnionMemberWrapper) -> 
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_union_member_get_tag(wrapper: *const UnionMemberWrapper) -> YaildStringView {
+extern "C" fn yaild_union_member_get_tag(wrapper: *const UnionMemberWrapper) -> YaildStringView {
     unsafe {
         if (*wrapper).0.is_null() {
             return YaildStringView {
@@ -371,7 +374,7 @@ extern "C" fn yailde_union_member_get_tag(wrapper: *const UnionMemberWrapper) ->
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_union_member_get_type(wrapper: *const UnionMemberWrapper) -> TypeWrapper {
+extern "C" fn yaild_union_member_get_type(wrapper: *const UnionMemberWrapper) -> TypeWrapper {
     unsafe {
         if (*wrapper).0.is_null() {
             return TypeWrapper {
@@ -385,55 +388,59 @@ extern "C" fn yailde_union_member_get_type(wrapper: *const UnionMemberWrapper) -
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_struct_get_member_len(wrapper: *const StructWrapper) -> usize {
+extern "C" fn yaild_struct_get_member_len(wrapper: *const StructWrapper) -> usize {
     unsafe { (*(*wrapper).0).members.len() }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_struct_get_member(
+extern "C" fn yaild_struct_get_member(
     wrapper: *const StructWrapper,
     index: usize,
 ) -> StructMemberWrapper {
     unsafe {
         let members = &(*(*wrapper).0).members;
         if index >= members.len() {
-            return StructMemberWrapper(std::ptr::null());
+            return StructMemberWrapper {
+                name: std::ptr::null(),
+                ty: std::ptr::null(),
+            };
         }
-        StructMemberWrapper(&members[index] as *const _)
+        StructMemberWrapper {
+            name: &members[index].0 as *const _,
+            ty: &members[index].1 as *const _,
+        }
     }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_struct_member_get_name(
-    wrapper: *const StructMemberWrapper,
-) -> YaildStringView {
+extern "C" fn yaild_struct_member_get_name(wrapper: *const StructMemberWrapper) -> YaildStringView {
     unsafe {
-        if (*wrapper).0.is_null() {
+        if (*wrapper).name.is_null() {
             return YaildStringView {
                 ptr: std::ptr::null(),
                 len: 0,
             };
         }
-        string_view((*(*wrapper).0).0.as_str())
+        string_view((*(*wrapper).name).as_str())
     }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_struct_member_get_type(wrapper: *const StructMemberWrapper) -> TypeWrapper {
+extern "C" fn yaild_struct_member_get_type(wrapper: *const StructMemberWrapper) -> TypeWrapper {
     unsafe {
-        if (*wrapper).0.is_null() {
+        if (*wrapper).ty.is_null() {
             return TypeWrapper {
                 defs: std::ptr::null(),
             };
         }
         TypeWrapper {
-            defs: &(*(*wrapper).0).1 as *const TypeDef,
+            defs: (*wrapper).ty,
         }
     }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_into_get_from(wrapper: *const IntoWrapper) -> TypeWrapper {
+extern "C" fn yaild_into_get_from(wrapper: *const IntoWrapper) -> TypeWrapper {
     unsafe {
         TypeWrapper {
             defs: (*(*wrapper).0).from.as_ref() as *const TypeDef,
@@ -442,17 +449,17 @@ extern "C" fn yailde_into_get_from(wrapper: *const IntoWrapper) -> TypeWrapper {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_into_get_repr(wrapper: *const IntoWrapper) -> ReprWrapper {
+extern "C" fn yaild_into_get_repr(wrapper: *const IntoWrapper) -> ReprWrapper {
     unsafe { ReprWrapper(&(*(*wrapper).0).into as *const Repr) }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_map_get_key(wrapper: *const MapWrapper) -> PrimitiveWrapper {
+extern "C" fn yaild_map_get_key(wrapper: *const MapWrapper) -> PrimitiveWrapper {
     unsafe { PrimitiveWrapper(&(*(*wrapper).0).key as *const PrimitiveType) }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_map_get_value(wrapper: *const MapWrapper) -> TypeWrapper {
+extern "C" fn yaild_map_get_value(wrapper: *const MapWrapper) -> TypeWrapper {
     unsafe {
         TypeWrapper {
             defs: (*(*wrapper).0).val.as_ref() as *const TypeDef,
@@ -461,7 +468,7 @@ extern "C" fn yailde_map_get_value(wrapper: *const MapWrapper) -> TypeWrapper {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_named_get_value(wrapper: *const NamedWrapper) -> YaildStringView {
+extern "C" fn yaild_named_get_value(wrapper: *const NamedWrapper) -> YaildStringView {
     unsafe {
         if (*wrapper).0.is_null() {
             return YaildStringView {
@@ -474,9 +481,7 @@ extern "C" fn yailde_named_get_value(wrapper: *const NamedWrapper) -> YaildStrin
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_undetermined_get_value(
-    wrapper: *const UndeterminedWrapper,
-) -> YaildStringView {
+extern "C" fn yaild_undetermined_get_value(wrapper: *const UndeterminedWrapper) -> YaildStringView {
     unsafe {
         if (*wrapper).0.is_null() {
             return YaildStringView {

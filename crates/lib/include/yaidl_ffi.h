@@ -203,22 +203,13 @@ typedef struct ArrayWrapper {
   const struct ArrayType *_0;
 } ArrayWrapper;
 
-typedef struct ReprWrapper {
-  const struct Repr *_0;
-} ReprWrapper;
-
-typedef struct UnionMemberWrapper {
-  const struct UnionMember *_0;
-} UnionMemberWrapper;
-
-typedef struct YaildStringView {
-  const char *ptr;
-  size_t len;
-} YaildStringView;
-
 typedef struct IntoWrapper {
   const struct IntoType *_0;
 } IntoWrapper;
+
+typedef struct ReprWrapper {
+  const struct Repr *_0;
+} ReprWrapper;
 
 typedef struct PrimitiveWrapper {
   const struct PrimitiveType *_0;
@@ -227,6 +218,11 @@ typedef struct PrimitiveWrapper {
 typedef struct MapWrapper {
   const struct MapType *_0;
 } MapWrapper;
+
+typedef struct YaildStringView {
+  const char *ptr;
+  size_t len;
+} YaildStringView;
 
 typedef struct NamedWrapper {
   const struct String *_0;
@@ -247,6 +243,10 @@ typedef struct UndeterminedWrapper {
 typedef struct UnionWrapper {
   const struct UnionType *_0;
 } UnionWrapper;
+
+typedef struct UnionMemberWrapper {
+  const struct UnionMember *_0;
+} UnionMemberWrapper;
 
 void yaidl_code_add_child(struct CodeFFI *self,
                           struct CodeFFI code);
@@ -287,6 +287,10 @@ struct GeneratorFFI yaidl_generator_set_type(struct GeneratorFFI self,
 struct GeneratorFFI yaidl_generator_set_wire_translation(struct GeneratorFFI self,
                                                          TypeTranslationSign t);
 
+size_t yaild_array_get_len(const struct ArrayWrapper *wrapper);
+
+struct TypeWrapper yaild_array_get_type(const struct ArrayWrapper *wrapper);
+
 bool yaild_array_has_len(const struct ArrayWrapper *wrapper);
 
 bool yaild_definitions_has_endpoint(const struct DefinitionsWrapper *wrapper,
@@ -295,17 +299,47 @@ bool yaild_definitions_has_endpoint(const struct DefinitionsWrapper *wrapper,
 bool yaild_definitions_has_named_type(const struct DefinitionsWrapper *wrapper,
                                       const char *name);
 
+struct TypeWrapper yaild_into_get_from(const struct IntoWrapper *wrapper);
+
+struct ReprWrapper yaild_into_get_repr(const struct IntoWrapper *wrapper);
+
+struct PrimitiveWrapper yaild_map_get_key(const struct MapWrapper *wrapper);
+
+struct TypeWrapper yaild_map_get_value(const struct MapWrapper *wrapper);
+
+struct YaildStringView yaild_named_get_value(const struct NamedWrapper *wrapper);
+
+struct TypeWrapper yaild_optional_get_type(const struct OptionalWrapper *wrapper);
+
 bool yaild_repr_is_datetime(const struct ReprWrapper *wrapper);
+
+struct StructMemberWrapper yaild_struct_get_member(const struct StructWrapper *wrapper,
+                                                   size_t index);
+
+size_t yaild_struct_get_member_len(const struct StructWrapper *wrapper);
+
+struct YaildStringView yaild_struct_member_get_name(const struct StructMemberWrapper *wrapper);
+
+struct TypeWrapper yaild_struct_member_get_type(const struct StructMemberWrapper *wrapper);
 
 bool yaild_typeinfo_has_conversion(const struct TypeInfoWrapper *wrapper);
 
 bool yaild_typeinfo_has_name(const struct TypeInfoWrapper *wrapper);
 
+struct YaildStringView yaild_undetermined_get_value(const struct UndeterminedWrapper *wrapper);
+
+enum YaildUnionKind yaild_union_get_kind(const struct UnionWrapper *wrapper);
+
+struct UnionMemberWrapper yaild_union_get_member(const struct UnionWrapper *wrapper,
+                                                 size_t index);
+
+size_t yaild_union_get_member_len(const struct UnionWrapper *wrapper);
+
+struct YaildStringView yaild_union_member_get_tag(const struct UnionMemberWrapper *wrapper);
+
+struct TypeWrapper yaild_union_member_get_type(const struct UnionMemberWrapper *wrapper);
+
 bool yaild_union_member_has_tag(const struct UnionMemberWrapper *wrapper);
-
-size_t yailde_array_get_len(const struct ArrayWrapper *wrapper);
-
-struct TypeWrapper yailde_array_get_type(const struct ArrayWrapper *wrapper);
 
 struct EndpointWrapper yailde_definitions_get_endpoint(const struct DefinitionsWrapper *wrapper,
                                                        const char *name);
@@ -333,27 +367,6 @@ struct YaildStringView yailde_endpoint_param_get_name(const struct EndpointParam
 
 struct TypeWrapper yailde_endpoint_param_get_type(const struct EndpointParamWrapper *wrapper);
 
-struct TypeWrapper yailde_into_get_from(const struct IntoWrapper *wrapper);
-
-struct ReprWrapper yailde_into_get_repr(const struct IntoWrapper *wrapper);
-
-struct PrimitiveWrapper yailde_map_get_key(const struct MapWrapper *wrapper);
-
-struct TypeWrapper yailde_map_get_value(const struct MapWrapper *wrapper);
-
-struct YaildStringView yailde_named_get_value(const struct NamedWrapper *wrapper);
-
-struct TypeWrapper yailde_optional_get_type(const struct OptionalWrapper *wrapper);
-
-struct StructMemberWrapper yailde_struct_get_member(const struct StructWrapper *wrapper,
-                                                    size_t index);
-
-size_t yailde_struct_get_member_len(const struct StructWrapper *wrapper);
-
-struct YaildStringView yailde_struct_member_get_name(const struct StructMemberWrapper *wrapper);
-
-struct TypeWrapper yailde_struct_member_get_type(const struct StructMemberWrapper *wrapper);
-
 size_t yailde_typeinfo_get_col(const struct TypeInfoWrapper *wrapper);
 
 struct TypeWrapper yailde_typeinfo_get_domain_type(const struct TypeInfoWrapper *wrapper);
@@ -369,18 +382,5 @@ struct TypeWrapper yailde_typeinfo_get_type(const struct TypeInfoWrapper *wrappe
 struct YaildStringView yailde_typeinfo_get_wire_name(const struct TypeInfoWrapper *wrapper);
 
 struct TypeWrapper yailde_typeinfo_get_wire_type(const struct TypeInfoWrapper *wrapper);
-
-struct YaildStringView yailde_undetermined_get_value(const struct UndeterminedWrapper *wrapper);
-
-enum YaildUnionKind yailde_union_get_kind(const struct UnionWrapper *wrapper);
-
-struct UnionMemberWrapper yailde_union_get_member(const struct UnionWrapper *wrapper,
-                                                  size_t index);
-
-size_t yailde_union_get_member_len(const struct UnionWrapper *wrapper);
-
-struct YaildStringView yailde_union_member_get_tag(const struct UnionMemberWrapper *wrapper);
-
-struct TypeWrapper yailde_union_member_get_type(const struct UnionMemberWrapper *wrapper);
 
 #endif  /* __BIND_GEN__ */

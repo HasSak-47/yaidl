@@ -13,3 +13,6 @@ clap = {workspace = true}
 [lib]
 crate-type = ["lib", "cdylib"]
 
+[dev-dependencies]
+clang = "2.0.0"
+
