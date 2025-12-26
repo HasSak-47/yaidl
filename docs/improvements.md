@@ -1,6 +1,6 @@
 # General
 
-- Document a quickstart in `README.md` that mirrors the commands from `AGENTS.md` so new contributors have a consistent checklist.
+- Document a quickstart in `docs/README.md` that mirrors the commands from `docs/AGENTS.md` so new contributors have a consistent checklist.
 - Add status badges (CI, crates.io, docs) once automation exists.
 
 # Modules

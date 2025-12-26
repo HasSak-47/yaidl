@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-The YAIDL workspace has two crates: `crates/lib` hosts the parser, builder, and generators, while `crates/cli` wires those modules into the binary. The lib crate keeps the Pest grammar under `pest/lang.pest`, parser helpers in `src/parser/`, generators in `src/generators/`, and indentation helpers in `src/builder/`. DSL examples and fixtures live under `crates/lib/tests` alongside `lang.md` and `todo.md`; add new samples there for discoverability.
+The YAIDL workspace has two crates: `crates/lib` hosts the parser, builder, and generators, while `crates/cli` wires those modules into the binary. The lib crate keeps the Pest grammar under `pest/lang.pest`, parser helpers in `src/parser/`, generators in `src/generators/`, and indentation helpers in `src/builder/`. DSL examples and fixtures live under `crates/lib/tests` alongside `docs/lang.md` and `todo.md`; add new samples there for discoverability.
 
 ## Build, Test, and Development Commands
 

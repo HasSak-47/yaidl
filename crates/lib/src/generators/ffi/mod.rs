@@ -1,3 +1,8 @@
+mod definitions_wrapper;
+mod endpoint_wrapper;
+mod type_wrapper;
+mod typeinfo_wrapper;
+
 use std::{
     ffi::{c_char, c_void},
     ptr::null,
@@ -42,7 +47,7 @@ pub type TypeHeader = extern "C" fn(*const c_void, DefinitionsWrapper) -> CodeFF
 pub type EndpointHeader = extern "C" fn(*const c_void, DefinitionsWrapper) -> CodeFFI;
 pub type Type =
     extern "C" fn(*const c_void, *const c_char, TypeWrapper, c_char, DefinitionsWrapper) -> CodeFFI;
-/// Signature for callbacks that emit domain↔wire translation helpers.
+/// Signature for callbacks that emit domain <-> wire translation helpers.
 pub type TypeTranslation =
     extern "C" fn(*const c_void, c_char, TypeInfoWrapper, DefinitionsWrapper) -> CodeFFI;
 /// Signature for callbacks that emit endpoint functions.

@@ -6,8 +6,8 @@ YAIDL is a Rust workspace that compiles a compact HTTP DSL describing structs, u
 
 ## Highlights
 
-- **Single source of truth** – Model your API once in `*.yaidl` files; the Pest grammar lives in `crates/lib/pest/lang.pest` and the walkthrough in `lang.md`.
-- **Extensible generators** – Every backend implements `genlib::generators::Generator`, making it straightforward to add more targets (including via the `ffi` shim).
+- **Single source of truth** – Model your API once in `*.yaidl` files; the Pest grammar lives in `crates/lib/pest/lang.pest` and the walkthrough in `docs/lang.md`.
+- **Extensible generators** – Every backend implements `genlib::generators::Generator`, making it straightforward to add more targets (including via the `ffi` shim documented in `docs/ffi.md`).
 - **Configurable TypeScript output** – Switch error-handling (`raise`, `result`, or tuple `pair`) and literal-union handling (`to_type`, `to_enum`, or `to_algebraic`) straight from the CLI.
 - **FastAPI starter** – Provide an app/module name and get FastAPI route stubs plus pydantic models (translation helpers are tracked in `todo.md`).
 
@@ -28,7 +28,7 @@ get_product(id: int) @get "/product/{id}" -> Product
 create_sale(sale: Sale) @post "/sales" -> Sale
 ```
 
-See `lang.md` for a longer walkthrough and `crates/lib/pest/lang.pest` for the authoritative grammar.
+See `docs/lang.md` for a longer walkthrough and `crates/lib/pest/lang.pest` for the authoritative grammar.
 
 ## Running the CLI
 
@@ -75,11 +75,12 @@ The CLI only overwrites files when `--destructive` is set. Combine `--prefix`, `
 - `crates/cli/src/main.rs` – clap-based CLI surface that wires workspace modules into the binary.
 - `crates/lib/src/parser/` – DSL AST, loader, and definition normalisation (`definitions.rs`, `types.rs`, `endpoint.rs`).
 - `crates/lib/src/builder/` – Reusable code indentation/formatting helpers.
-- `crates/lib/src/generators/` – TypeScript and FastAPI backends plus shared traits (`ts.rs`, `python.rs`, `ffi.rs`).
+- `crates/lib/src/generators/` – TypeScript and FastAPI backends plus shared traits (`ts.rs`, `python.rs`, `ffi/`).
 - `crates/lib/tests/` – Parser + generator regression tests with DSL fixtures (`unit.yaidl`).
 - `crates/lib/pest/lang.pest` – Grammar that powers the DSL parser.
-- `lang.md` – DSL walkthrough and example output.
-- `AGENTS.md` – Contributor guide covering coding style, commands, and review expectations.
+- `docs/lang.md` – DSL walkthrough and example output.
+- `docs/ffi.md` – FFI shim overview, callbacks, and safety notes.
+- `docs/AGENTS.md` – Contributor guide covering coding style, commands, and review expectations.
 
 ## Developing Locally
 
@@ -96,4 +97,4 @@ Point YAIDL output at `temp/` or another disposable directory so local source fi
 
 ## Contributing
 
-Read `AGENTS.md` for the contributor checklist (project layout, coding style, testing, and PR requirements). Summarise behaviour changes in PR descriptions, include any regenerated artifacts, and link the relevant entries from `todo.md` when closing outstanding work.
+Read `docs/AGENTS.md` for the contributor checklist (project layout, coding style, testing, and PR requirements). Summarise behaviour changes in PR descriptions, include any regenerated artifacts, and link the relevant entries from `todo.md` when closing outstanding work.
