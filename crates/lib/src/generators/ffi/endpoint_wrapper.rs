@@ -1,7 +1,7 @@
 use crate::parser::endpoint::{EndPoint, EndPointMethod, EndPointParamKind};
 use crate::parser::types::Type as TypeDef;
 
-use super::{string_view, TypeWrapper, YaildStringView};
+use super::{TypeWrapper, YaildStringView, string_view};
 
 #[repr(C)]
 pub enum YaildEndpointMethod {
@@ -27,7 +27,8 @@ pub struct EndpointWrapper {
 
 #[repr(C)]
 pub struct EndpointParamWrapper {
-    pub defs: *const (String, TypeDef),
+    pub name: *const String,
+    pub ty: *const crate::parser::types::Type,
 }
 
 #[unsafe(no_mangle)]
@@ -83,11 +84,14 @@ extern "C" fn yailde_endpoint_get_param(
         let params = &(*(*wrapper).defs).params;
         if index >= params.len() {
             return EndpointParamWrapper {
-                defs: std::ptr::null(),
+                name: std::ptr::null(),
+                ty: std::ptr::null(),
             };
         }
+        let (name, ty) = &params[index];
         EndpointParamWrapper {
-            defs: &params[index] as *const _,
+            name: name as *const _,
+            ty: ty as *const _,
         }
     }
 }
@@ -97,28 +101,26 @@ extern "C" fn yailde_endpoint_param_get_name(
     wrapper: *const EndpointParamWrapper,
 ) -> YaildStringView {
     unsafe {
-        if (*wrapper).defs.is_null() {
+        if (*wrapper).name.is_null() {
             return YaildStringView {
                 ptr: std::ptr::null(),
                 len: 0,
             };
         }
-        string_view((*(*wrapper).defs).0.as_str())
+        string_view((*(*wrapper).name).as_str())
     }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn yailde_endpoint_param_get_type(
-    wrapper: *const EndpointParamWrapper,
-) -> TypeWrapper {
+extern "C" fn yailde_endpoint_param_get_type(wrapper: *const EndpointParamWrapper) -> TypeWrapper {
     unsafe {
-        if (*wrapper).defs.is_null() {
+        if (*wrapper).ty.is_null() {
             return TypeWrapper {
                 defs: std::ptr::null(),
             };
         }
         TypeWrapper {
-            defs: &(*(*wrapper).defs).1 as *const TypeDef,
+            defs: (*wrapper).ty,
         }
     }
 }
@@ -129,11 +131,10 @@ extern "C" fn yailde_endpoint_param_get_kind(
     wrapper: *const EndpointParamWrapper,
 ) -> YaildEndpointParamKind {
     unsafe {
-        if (*endpoint).defs.is_null() || (*wrapper).defs.is_null() {
+        if (*endpoint).defs.is_null() || (*wrapper).name.is_null() {
             return YaildEndpointParamKind::Unknown;
         }
-        let name = &(*(*wrapper).defs).0;
-        match (*(*endpoint).defs).get_param_type(name) {
+        match (*(*endpoint).defs).get_param_type(&*(*wrapper).name) {
             Some(EndPointParamKind::Body) => YaildEndpointParamKind::Body,
             Some(EndPointParamKind::Path) => YaildEndpointParamKind::Path,
             Some(EndPointParamKind::Query) => YaildEndpointParamKind::Query,

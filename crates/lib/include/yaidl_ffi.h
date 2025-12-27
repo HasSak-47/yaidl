@@ -51,7 +51,10 @@ typedef struct Definitons Definitons;
  */
 typedef struct EndPoint EndPoint;
 
-typedef struct EndpointParamWrapper EndpointParamWrapper;
+typedef struct EndpointParamWrapper {
+  const struct String *name;
+  const struct Type *ty;
+} EndpointParamWrapper;
 
 /**
  * Representation coercion, e.g. `string as datetime`.
@@ -76,8 +79,6 @@ typedef struct PrimitiveType PrimitiveType;
 typedef struct Repr Repr;
 
 typedef struct String String;
-
-typedef struct StructMemberWrapper StructMemberWrapper;
 
 /**
  * Struct-like layout (`type Foo = { bar: Baz }`).
@@ -231,6 +232,11 @@ typedef struct NamedWrapper {
 typedef struct OptionalWrapper {
   const struct OptionType *_0;
 } OptionalWrapper;
+
+typedef struct StructMemberWrapper {
+  const struct String *name;
+  const struct Type *ty;
+} StructMemberWrapper;
 
 typedef struct StructWrapper {
   const struct StructType *_0;

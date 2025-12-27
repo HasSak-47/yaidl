@@ -47,7 +47,7 @@ pub struct UnionMemberWrapper(pub *const UnionMember);
 #[repr(C)]
 pub struct StructMemberWrapper {
     pub name: *const String,
-    pub ty: *const TypeDef,
+    pub ty: *const crate::parser::types::Type,
 }
 
 macro_rules! type_create_is_and_get {

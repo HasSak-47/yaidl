@@ -50,6 +50,7 @@ fn ffi_header_type_is_complete_or_pointer() -> Result<()> {
     let clang = Clang::new().map_err(|e| anyhow!(e))?;
     let index = Index::new(&clang, true, true);
     let tu = index.parser("include/yaidl_ffi.h").parse()?;
+    let mut errors = Vec::new();
 
     for f in tu
         .get_entity()
@@ -63,25 +64,29 @@ fn ffi_header_type_is_complete_or_pointer() -> Result<()> {
         // Return type
         let ret = fn_ty.get_result_type().unwrap();
         if is_invalid_ffi_type(&ret, false) {
-            bail!(
+            errors.push(format!(
                 "Invalid return type in {}: {:?} @ {loc}",
                 f.get_name().unwrap_or("<anon>".into()),
                 ret.get_canonical_type().get_display_name()
-            );
+            ));
         }
 
         // Argument types
         if let Some(args) = fn_ty.get_argument_types() {
             for (i, arg) in args.iter().enumerate() {
                 if is_invalid_ffi_type(arg, true) {
-                    bail!(
+                    errors.push(format!(
                         "Invalid arg {i} in {}: {:?} @ {loc}",
                         f.get_name().unwrap_or("<anon>".into()),
                         arg.get_canonical_type().get_display_name()
-                    );
+                    ));
                 }
             }
         }
+    }
+
+    if !errors.is_empty() {
+        bail!(errors.join("\n"));
     }
 
     Ok(())
