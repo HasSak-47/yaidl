@@ -11,11 +11,17 @@ ty_definition = { "type" ~ name ~ "=" ~ ty }
 struct_extension = @{ ":" ~ name }
 
 end_point = {
-    name ~ "(" ~ (member_field ~ ("," ~ member_field)* ~ ","?)? ~ ")" ~ operation_mark ~ path ~ ("->" ~ ty)?
+    interface_mark ~ 
+    name ~ "(" ~ (member_field ~ ("," ~ member_field)* ~ ","?)? ~ ")" ~ path ~ ("->" ~ ty)?
 }
 
-operation_mark = ${ "@" ~ operation }
-operation      =  { "get" | "post" | "put" | "delete" }
+// restrict this to make it so cabi only accepts c stuff
+// and http stuff only http stuff
+interface_mark   = {  interface_header ~ ("{" ~ (interface_config ~ ","?) | ((interface_config ~ ",")*) ~ "}")?}
+interface_header = ${"@" ~ interface ~ (":" ~ interface_method)?}
+interface        =  { "cabi" | "http" }
+interface_method =  { "get" | "post" | "put" | "delete" }
+interface_config = ${ name ~ ":" ~ (interface_config | name)}
 
 path = ${ "\"" ~ inner ~ "\"" }
 

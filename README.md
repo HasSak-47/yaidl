@@ -32,6 +32,12 @@ See `docs/lang.md` for a longer walkthrough and `crates/lib/pest/lang.pest` for 
 
 ## Running the CLI
 
+Use the `stable` branch to run the application:
+
+```bash
+git clone -b stable https://github.com/HasSak-47/yaidl.git
+```
+
 Provide one or more `.yaidl` files followed by a generator subcommand:
 
 ```bash
